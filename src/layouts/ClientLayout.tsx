@@ -37,6 +37,13 @@ const ClientLayout = () => {
           >
             Nouveau virement
           </NavLink>
+          <NavLink
+            to="/client/transactions"
+            onClick={clearAuthError}
+            className={({ isActive }) => (isActive ? 'active' : undefined)}
+          >
+            Transactions
+          </NavLink>
         </nav>
         {authError && <div className="alert">{authError}</div>}
         <Outlet />

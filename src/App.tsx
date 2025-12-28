@@ -11,6 +11,7 @@ import CreateAccountPage from './pages/agent/CreateAccountPage'
 import AgentListsPage from './pages/agent/AgentListsPage'
 import AgentCardPage from './pages/agent/AgentCardPage'
 import ClientDashboardPage from './pages/client/ClientDashboardPage'
+import ClientTransactionsPage from './pages/client/ClientTransactionsPage'
 import ClientTransferPage from './pages/client/ClientTransferPage'
 
 const HomeRedirect = () => {
@@ -68,6 +69,7 @@ const App = () => {
       >
         <Route index element={<ClientDashboardPage />} />
         <Route path="transfer" element={<ClientTransferPage />} />
+        <Route path="transactions" element={<ClientTransactionsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

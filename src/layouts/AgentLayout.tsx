@@ -51,6 +51,13 @@ const AgentLayout = () => {
           >
             Listes
           </NavLink>
+          <NavLink
+            to="/agent/card"
+            onClick={clearAuthError}
+            className={({ isActive }) => (isActive ? 'active' : undefined)}
+          >
+            Carte
+          </NavLink>
         </nav>
         {authError && <div className="alert">{authError}</div>}
         <Outlet />

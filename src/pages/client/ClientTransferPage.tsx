@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useState } from 'react'
 import { createTransaction } from '../../services/TransactionService'
-import { fetchAccounts } from '../../services/BankService'
+import { fetchMyAccounts } from '../../services/BankService'
+import AuthService from '../../services/AuthService'
 
 const getErrorMessage = (data: unknown): string => {
   if (typeof data === 'string') return data
@@ -17,13 +18,15 @@ const ClientTransferPage = () => {
   const [amount, setAmount] = useState('')
   const [motif, setMotif] = useState('')
   const [username, setUsername] = useState('')
+  const [isUsernameLocked, setIsUsernameLocked] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
+  const [isSuccess, setIsSuccess] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     const loadAccounts = async () => {
       try {
-        const data = await fetchAccounts()
+        const data = await fetchMyAccounts()
         const list = Array.isArray(data) ? data : []
         setAccounts(list)
         const firstRib = list[0]?.rib ?? ''
@@ -37,10 +40,19 @@ const ClientTransferPage = () => {
     loadAccounts()
   }, [])
 
+  useEffect(() => {
+    const tokenUsername = AuthService.getUsernameFromToken(AuthService.getToken())
+    if (tokenUsername) {
+      setUsername(tokenUsername)
+      setIsUsernameLocked(true)
+    }
+  }, [])
+
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault()
     setIsSubmitting(true)
     setMessage(null)
+    setIsSuccess(false)
     try {
       await createTransaction({
         ribFrom,
@@ -50,6 +62,7 @@ const ClientTransferPage = () => {
         username
       })
       setMessage('Virement effectue avec succes')
+      setIsSuccess(true)
     } catch (error: any) {
       setMessage(getErrorMessage(error?.response?.data))
     } finally {
@@ -98,10 +111,16 @@ const ClientTransferPage = () => {
           <input value={motif} onChange={(event) => setMotif(event.target.value)} required />
         </label>
         <label className="field">
-          <span>Username (requis par backend)</span>
-          <input value={username} onChange={(event) => setUsername(event.target.value)} required />
+          <span>Username</span>
+          <input
+            value={username}
+            onChange={(event) => setUsername(event.target.value)}
+            autoComplete="username"
+            readOnly={isUsernameLocked}
+            required
+          />
         </label>
-        {message && <div className="alert">{message}</div>}
+        {message && <div className={`alert${isSuccess ? ' success' : ''}`}>{message}</div>}
         <button type="submit" disabled={isSubmitting}>
           {isSubmitting ? 'En cours...' : 'Valider'}
         </button>

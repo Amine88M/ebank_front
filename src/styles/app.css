@@ -110,6 +110,14 @@ button:disabled {
   background: #0f172a;
 }
 
+button.danger {
+  background: #dc2626;
+}
+
+button.danger:hover {
+  box-shadow: 0 8px 18px rgba(220, 38, 38, 0.25);
+}
+
 .alert {
   margin: 16px 0;
   padding: 12px 14px;
@@ -237,6 +245,12 @@ td {
   margin-top: 12px;
 }
 
+.card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
 @media (min-width: 720px) {
   .form-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -261,4 +275,91 @@ td {
     justify-content: flex-start;
     flex-wrap: wrap;
   }
+}
+
+
+.bank-card {
+  position: relative;
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 18px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #2b37ff 0%, #3b35f2 45%, #2412b8 100%);
+  box-shadow: 0 18px 32px rgba(30, 64, 175, 0.35);
+  overflow: hidden;
+}
+
+.bank-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.18), transparent 55%);
+  pointer-events: none;
+}
+
+.bank-card__row {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  z-index: 1;
+}
+
+.bank-card__row--split {
+  align-items: flex-end;
+}
+
+.bank-card__label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.75;
+}
+
+.bank-card__value {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.bank-card__value--small {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.bank-card__number {
+  position: relative;
+  font-size: 18px;
+  letter-spacing: 0.2em;
+  z-index: 1;
+}
+
+.bank-card__chip {
+  width: 46px;
+  height: 34px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #f8e6a4, #d6b35a);
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px;
+  padding: 6px;
+}
+
+.bank-card__chip span {
+  display: block;
+  background: rgba(0, 0, 0, 0.18);
+  border-radius: 3px;
+}
+
+.bank-card__badge {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  background: rgba(15, 23, 42, 0.28);
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  z-index: 1;
 }

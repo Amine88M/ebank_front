@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
-import { fetchAccounts } from '../../services/BankService'
-import { fetchTransactions } from '../../services/TransactionService'
+import { fetchMyAccounts } from '../../services/BankService'
+import { fetchMyCard, updateCardStatus, updateContactless } from '../../services/CardService'
+import AuthService from '../../services/AuthService'
+import { fetchMyTransactions } from '../../services/TransactionService'
 
 const getErrorMessage = (data: unknown): string => {
   if (typeof data === 'string') return data
@@ -10,7 +12,7 @@ const getErrorMessage = (data: unknown): string => {
   return 'Erreur lors du chargement'
 }
 
-const renderTable = (items: unknown) => {
+const renderTable = (items: unknown, hiddenColumns: string[] = []) => {
   if (!Array.isArray(items)) {
     return <pre className="data-block">{JSON.stringify(items, null, 2)}</pre>
   }
@@ -18,7 +20,7 @@ const renderTable = (items: unknown) => {
     return <p>Aucun resultat.</p>
   }
 
-  const columns = Object.keys(items[0] ?? {})
+  const columns = Object.keys(items[0] ?? {}).filter((column) => !hiddenColumns.includes(column))
 
   return (
     <div className="table-wrap">
@@ -49,11 +51,14 @@ const ClientDashboardPage = () => {
   const [selectedRib, setSelectedRib] = useState('')
   const [transactions, setTransactions] = useState<unknown[]>([])
   const [message, setMessage] = useState<string | null>(null)
+  const [card, setCard] = useState<Record<string, unknown> | null>(null)
+  const [isUpdatingContactless, setIsUpdatingContactless] = useState(false)
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false)
 
   useEffect(() => {
     const loadAccounts = async () => {
       try {
-        const data = await fetchAccounts()
+        const data = await fetchMyAccounts()
         const list = Array.isArray(data) ? data : []
         setAccounts(list)
         const rib = list[0]?.rib ?? ''
@@ -67,15 +72,19 @@ const ClientDashboardPage = () => {
     loadAccounts()
   }, [])
 
+  useEffect(() => {
+    loadCard()
+  }, [])
+
   const selectedAccount = useMemo(() => {
     if (!Array.isArray(accounts)) return null
     return accounts.find((account) => (account as any)?.rib === selectedRib) ?? null
   }, [accounts, selectedRib])
 
-  const loadTransactions = async (ribValue: string) => {
+  const loadTransactions = async () => {
     setMessage(null)
     try {
-      const data = await fetchTransactions({ rib: ribValue })
+      const data = await fetchMyTransactions()
       const list = Array.isArray(data) ? data.slice(0, 10) : []
       setTransactions(list)
     } catch (error: any) {
@@ -83,11 +92,54 @@ const ClientDashboardPage = () => {
     }
   }
 
+  const loadCard = async () => {
+    setMessage(null)
+    try {
+      const data = await fetchMyCard()
+      setCard(data as Record<string, unknown>)
+    } catch (error: any) {
+      setMessage(getErrorMessage(error?.response?.data))
+    }
+  }
+
+  const handleToggleContactless = async () => {
+    if (!card) return
+    setIsUpdatingContactless(true)
+    setMessage(null)
+    try {
+      const nextEnabled = !(card as any)?.contactlessEnabled
+      const data = await updateContactless(nextEnabled)
+      setCard(data as Record<string, unknown>)
+    } catch (error: any) {
+      setMessage(getErrorMessage(error?.response?.data))
+    } finally {
+      setIsUpdatingContactless(false)
+    }
+  }
+
+  const handleOpposition = async () => {
+    if (!card) return
+    setIsUpdatingStatus(true)
+    setMessage(null)
+    try {
+      const data = await updateCardStatus('BLOCKED')
+      setCard(data as Record<string, unknown>)
+    } catch (error: any) {
+      setMessage(getErrorMessage(error?.response?.data))
+    } finally {
+      setIsUpdatingStatus(false)
+    }
+  }
+
   useEffect(() => {
     if (selectedRib) {
-      loadTransactions(selectedRib)
+      loadTransactions()
     }
   }, [selectedRib])
+
+  const cardHolder = AuthService.getUsernameFromToken(AuthService.getToken()) ?? 'Client'
+  const cardStatus = String((card as any)?.status ?? '')
+  const isBlocked = cardStatus.toUpperCase() === 'BLOCKED'
 
   return (
     <section className="content">
@@ -126,12 +178,83 @@ const ClientDashboardPage = () => {
 
       <div className="section">
         <div className="section-header">
-          <h3>Dernieres operations</h3>
-          <button type="button" onClick={() => selectedRib && loadTransactions(selectedRib)}>
+          <h3>Carte</h3>
+          <button type="button" onClick={loadCard}>
             Rafraichir
           </button>
         </div>
-        {renderTable(transactions)}
+        {card ? (
+          <>
+            <div className="bank-card">
+              <div className="bank-card__row">
+                <div>
+                  <div className="bank-card__label">Solde</div>
+                  <div className="bank-card__value">{String((selectedAccount as any)?.amount ?? '')}</div>
+                </div>
+                <div className="bank-card__chip" aria-hidden="true">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </div>
+              <div className="bank-card__row bank-card__row--split">
+                <div>
+                  <div className="bank-card__label">Titulaire</div>
+                  <div className="bank-card__value bank-card__value--small">{cardHolder}</div>
+                </div>
+                <div>
+                  <div className="bank-card__label">Valide</div>
+                  <div className="bank-card__value bank-card__value--small">{String((card as any)?.expiry ?? '')}</div>
+                </div>
+              </div>
+              <div className="bank-card__number">{String((card as any)?.maskedNumber ?? '')}</div>
+              <div className="bank-card__badge">{isBlocked ? 'OPPOSITION' : 'ACTIVE'}</div>
+            </div>
+            <div className="summary">
+              <div>
+                <strong>Statut:</strong> {cardStatus || 'ACTIVE'}
+              </div>
+              <div>
+                <strong>Plafond jour:</strong> {String((card as any)?.dailyLimit ?? '')}
+              </div>
+              <div>
+                <strong>Plafond mois:</strong> {String((card as any)?.monthlyLimit ?? '')}
+              </div>
+              <div>
+                <strong>Contactless:</strong> {String((card as any)?.contactlessEnabled ? 'Active' : 'Desactive')}
+              </div>
+              <div className="card-actions">
+                <button
+                  type="button"
+                  onClick={handleToggleContactless}
+                  disabled={isUpdatingContactless || isBlocked}
+                >
+                  {(card as any)?.contactlessEnabled ? 'Desactiver contactless' : 'Activer contactless'}
+                </button>
+                <button
+                  type="button"
+                  className="danger"
+                  onClick={handleOpposition}
+                  disabled={isUpdatingStatus || isBlocked}
+                >
+                  Mettre en opposition
+                </button>
+              </div>
+            </div>
+          </>
+        ) : (
+          <p>Aucune carte disponible.</p>
+        )}
+      </div>
+
+      <div className="section">
+        <div className="section-header">
+          <h3>Dernieres operations</h3>
+          <button type="button" onClick={() => selectedRib && loadTransactions()}>
+            Rafraichir
+          </button>
+        </div>
+        {renderTable(transactions, ['bankAccount', 'user'])}
       </div>
     </section>
   )

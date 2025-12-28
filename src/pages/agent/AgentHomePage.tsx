@@ -18,6 +18,10 @@ const AgentHomePage = () => {
           <h3>Listes</h3>
           <p>Consulter clients, comptes et transactions.</p>
         </Link>
+        <Link className="card" to="/agent/card">
+          <h3>Carte</h3>
+          <p>Creer une carte et gerer l'opposition.</p>
+        </Link>
       </div>
     </section>
   )

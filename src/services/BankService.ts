@@ -15,3 +15,8 @@ export const fetchAccounts = async () => {
   const response = await apiClient.get('/rest/bank/all')
   return response.data
 }
+
+export const fetchMyAccounts = async () => {
+  const response = await apiClient.get('/rest/bank/my')
+  return response.data
+}

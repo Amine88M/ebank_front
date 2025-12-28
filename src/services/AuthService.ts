@@ -53,6 +53,29 @@ const getRoleFromToken = (token: string): Role | null => {
   return extractRole(payload)
 }
 
+const getUsernameFromToken = (token: string | null) => {
+  if (!token) {
+    return null
+  }
+
+  const payload = decodeTokenPayload(token)
+  if (!payload) {
+    return null
+  }
+
+  const subject = payload.sub
+  if (typeof subject === 'string' && subject) {
+    return subject
+  }
+
+  const username = payload.username
+  if (typeof username === 'string' && username) {
+    return username
+  }
+
+  return null
+}
+
 const login = async (username: string, password: string) => {
   const response = await apiClient.post<LoginResponse>('/auth/login', { username, password })
   return response.data
@@ -86,6 +109,7 @@ const AuthService = {
   getToken,
   setToken,
   getRoleFromToken,
+  getUsernameFromToken,
   getAuthState,
   login,
   changePassword,

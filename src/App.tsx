@@ -9,6 +9,7 @@ import AgentHomePage from './pages/agent/AgentHomePage'
 import CreateCustomerPage from './pages/agent/CreateCustomerPage'
 import CreateAccountPage from './pages/agent/CreateAccountPage'
 import AgentListsPage from './pages/agent/AgentListsPage'
+import AgentCardPage from './pages/agent/AgentCardPage'
 import ClientDashboardPage from './pages/client/ClientDashboardPage'
 import ClientTransferPage from './pages/client/ClientTransferPage'
 
@@ -55,6 +56,7 @@ const App = () => {
         <Route path="create-customer" element={<CreateCustomerPage />} />
         <Route path="create-account" element={<CreateAccountPage />} />
         <Route path="lists" element={<AgentListsPage />} />
+        <Route path="card" element={<AgentCardPage />} />
       </Route>
       <Route
         path="/client"

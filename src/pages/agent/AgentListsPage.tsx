@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { fetchCustomers } from '../../services/CustomerService'
 import { fetchAccounts } from '../../services/BankService'
 
@@ -11,6 +11,12 @@ const getErrorMessage = (data: unknown): string => {
   }
   return 'Erreur lors du chargement'
 }
+
+const normalizeSearch = (value: unknown): string =>
+  String(value ?? '')
+    .toLowerCase()
+    .replace(/\s+/g, '')
+    .trim()
 
 /* ================= TABLES ================= */
 
@@ -71,6 +77,22 @@ const AgentListsPage = () => {
   const [customers, setCustomers] = useState<any[]>([])
   const [accounts, setAccounts] = useState<any[]>([])
   const [message, setMessage] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const normalizedQuery = useMemo(() => normalizeSearch(searchQuery), [searchQuery])
+  const filteredCustomers = useMemo(() => {
+    if (!normalizedQuery) return customers
+    return customers.filter((customer) => {
+      const fields = [customer?.identityRef, customer?.firstname, customer?.lastname]
+      return fields.some((field) => normalizeSearch(field).includes(normalizedQuery))
+    })
+  }, [customers, normalizedQuery])
+  const filteredAccounts = useMemo(() => {
+    if (!normalizedQuery) return accounts
+    return accounts.filter((account) =>
+      normalizeSearch(account?.rib).includes(normalizedQuery),
+    )
+  }, [accounts, normalizedQuery])
 
   const loadCustomers = async () => {
     setMessage(null)
@@ -90,28 +112,39 @@ const AgentListsPage = () => {
     }
   }
 
+  useEffect(() => {
+    loadCustomers()
+    loadAccounts()
+  }, [])
+
   return (
     <section className="content bordered">
       <h2>Listes & consultations</h2>
 
       {message && <div className="alert">{message}</div>}
 
+      <input
+        type="search"
+        placeholder="Chercher par CIN, nom, prénom ou RIB"
+        value={searchQuery}
+        onChange={(event) => setSearchQuery(event.target.value)}
+        style={{ width: '100%' }}
+      />
+
       {/* CLIENTS */}
       <div className="section">
         <div className="section-header">
           <h3>Clients</h3>
-          <button onClick={loadCustomers}>Charger</button>
         </div>
-        {customers.length > 0 && <CustomersTable customers={customers} />}
+        {filteredCustomers.length > 0 && <CustomersTable customers={filteredCustomers} />}
       </div>
 
       {/* COMPTES */}
       <div className="section">
         <div className="section-header">
           <h3>Comptes</h3>
-          <button onClick={loadAccounts}>Charger</button>
         </div>
-        {accounts.length > 0 && <AccountsTable accounts={accounts} />}
+        {filteredAccounts.length > 0 && <AccountsTable accounts={filteredAccounts} />}
       </div>
     </section>
   )

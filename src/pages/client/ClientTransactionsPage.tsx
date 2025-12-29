@@ -46,8 +46,8 @@ const ClientTransactionsPage = () => {
   }, [])
 
   return (
-    <section className="content">
-      <h2>Transactions</h2>
+    <section >
+    
       {message && <div className="alert">{message}</div>}
 
       <div className="section">

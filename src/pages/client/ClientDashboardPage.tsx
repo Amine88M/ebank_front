@@ -136,15 +136,15 @@ const ClientDashboardPage = () => {
   const activityLabels = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']
 
   return (
-    <section className="dashboard-shell">
+    <section >
       <div className="dashboard-top">
-        <div>
-          <h2>Overview</h2>
-          <p>Bienvenue, {cardHolder}. Voici vos informations principales.</p>
+        {/* <div>
+         
+        <p>Bienvenue, {cardHolder}. Voici vos informations principales.</p> 
         </div>
         <div className="dashboard-search">
           <input type="search" placeholder="Rechercher..." aria-label="Rechercher" />
-        </div>
+        </div>*/}
       </div>
 
       {message && <div className="alert">{message}</div>}
@@ -284,7 +284,7 @@ const ClientDashboardPage = () => {
 
         <div className="dashboard-card">
           <div className="dashboard-card__header">
-            <h3>Account Summary</h3>
+            <h3>Aperçu du compte</h3>
           </div>
           {Array.isArray(accounts) && accounts.length > 1 ? (
             <label className="field">
@@ -301,15 +301,15 @@ const ClientDashboardPage = () => {
           {selectedAccount ? (
             <div className="account-summary">
               <div>
-                <span>RIB</span>
+                <span>RIB : </span>
                 <strong>{String((selectedAccount as any)?.rib ?? '')}</strong>
               </div>
               <div>
-                <span>Solde</span>
+                <span>Solde : </span>
                 <strong>{String((selectedAccount as any)?.amount ?? '')}</strong>
               </div>
               <div>
-                <span>Statut</span>
+                <span>Statut : </span>
                 <strong>{isBlocked ? 'Carte bloquee' : 'Active'}</strong>
               </div>
             </div>

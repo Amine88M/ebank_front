@@ -350,7 +350,7 @@ td {
 }
 
 .mini-card {
-  background: linear-gradient(140deg, #111827, #1f2a5a);
+  background: linear-gradient(140deg, #173891, #173891);
   color: #e2e8f0;
   border-radius: 14px;
   padding: 16px;
@@ -358,7 +358,7 @@ td {
 }
 
 .mini-card--light {
-  background: #eef2ff;
+  background: #e2e8f0;
   color: #111827;
 }
 
@@ -562,8 +562,8 @@ td {
   padding: 18px;
   border-radius: 18px;
   color: #ffffff;
-  background: linear-gradient(135deg, #2b37ff 0%, #3b35f2 45%, #2412b8 100%);
-  box-shadow: 0 18px 32px rgba(30, 64, 175, 0.35);
+  background: linear-gradient(135deg, #1d4ed8 5%, #1d4ed8 45%, #1d4ed8 100%);
+  box-shadow: 0 18px 32px rgba(52, 89, 213, 0.35);
   overflow: hidden;
 }
 
@@ -616,7 +616,7 @@ td {
   width: 46px;
   height: 34px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #f8e6a4, #d6b35a);
+  background: linear-gradient(135deg, #f8e6a4, #e5cf97);
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 4px;
@@ -633,7 +633,7 @@ td {
   position: absolute;
   right: 16px;
   bottom: 16px;
-  background: rgba(15, 23, 42, 0.28);
+  background: rgba(78, 110, 186, 0.28);
   padding: 6px 10px;
   border-radius: 999px;
   font-size: 11px;

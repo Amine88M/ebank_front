@@ -35,14 +35,14 @@ const CreateCustomerPage = () => {
 
   return (
     <section className="content">
-      <h2>Ajouter un client</h2>
+      <h2></h2>
       <form className="form-grid" onSubmit={handleSubmit}>
         <label className="field">
-          <span>Numero d'identite</span>
+          <span>Numéro d'identité</span>
           <input value={identityRef} onChange={(event) => setIdentityRef(event.target.value)} required />
         </label>
         <label className="field">
-          <span>Prenom</span>
+          <span>Prénom</span>
           <input value={firstname} onChange={(event) => setFirstname(event.target.value)} required />
         </label>
         <label className="field">

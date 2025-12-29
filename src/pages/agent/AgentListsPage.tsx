@@ -3,133 +3,186 @@ import { fetchCustomers } from '../../services/CustomerService'
 import { fetchAccounts } from '../../services/BankService'
 import { fetchTransactions } from '../../services/TransactionService'
 
+/* ================= HELPERS ================= */
+
 const getErrorMessage = (data: unknown): string => {
   if (typeof data === 'string') return data
-  if (data && typeof data === 'object' && 'message' in data && typeof data.message === 'string') {
-    return data.message
+  if (data && typeof data === 'object' && 'message' in data) {
+    return String((data as any).message)
   }
   return 'Erreur lors du chargement'
 }
 
-const renderTable = (items: unknown) => {
-  if (!Array.isArray(items)) {
-    return <pre className="data-block">{JSON.stringify(items, null, 2)}</pre>
-  }
-  if (items.length === 0) {
-    return <p>Aucun resultat.</p>
-  }
+/* ================= TABLES ================= */
 
-  const columns = Object.keys(items[0] ?? {})
+const CustomersTable = ({ customers }: { customers: any[] }) => (
+  <table className="table">
+    <thead>
+      <tr>
+        <th>Nom d’utilisateur</th>
+        <th>CIN</th>
+        <th>Prénom</th>
+        <th>Nom</th>
+      </tr>
+    </thead>
+    <tbody>
+      {customers.map((c, i) => (
+        <tr key={i}>
+          <td>{c.username}</td>
+          <td>{c.identityRef}</td>
+          <td>{c.firstname}</td>
+          <td>{c.lastname}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+)
 
-  return (
-    <div className="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            {columns.map((column) => (
-              <th key={column}>{column}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((item, index) => (
-            <tr key={index}>
-              {columns.map((column) => (
-                <td key={column}>{String((item as Record<string, unknown>)[column] ?? '')}</td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  )
-}
+const AccountsTable = ({ accounts }: { accounts: any[] }) => (
+  <table className="table">
+    <thead>
+      <tr>
+        <th>RIB</th>
+        <th>Solde</th>
+        <th>Statut</th>
+        <th>Date de création</th>
+      </tr>
+    </thead>
+    <tbody>
+      {accounts.map((a, i) => (
+        <tr key={i}>
+          <td>{a.rib}</td>
+          <td>
+            {a.amount?.toLocaleString('fr-FR', {
+              style: 'currency',
+              currency: 'MAD',
+            })}
+          </td>
+          <td>{a.accountStatus}</td>
+          <td>{new Date(a.createdAt).toLocaleDateString('fr-FR')}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+)
+
+const TransactionsTable = ({ transactions }: { transactions: any[] }) => (
+  <table className="table">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Montant</th>
+        <th>Motif</th>
+        <th>RIB</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      {transactions.map((t, i) => (
+        <tr key={i}>
+          <td>{t.transactionType}</td>
+          <td>
+            {t.amount?.toLocaleString('fr-FR', {
+              style: 'currency',
+              currency: 'MAD',
+            })}
+          </td>
+          <td>{t.motif}</td>
+          <td>{t.bankAccount?.rib}</td>
+          <td>{new Date(t.createdAt).toLocaleDateString('fr-FR')}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+)
+
+/* ================= PAGE ================= */
 
 const AgentListsPage = () => {
-  const [customers, setCustomers] = useState<unknown>([])
-  const [accounts, setAccounts] = useState<unknown>([])
-  const [transactions, setTransactions] = useState<unknown>([])
+  const [customers, setCustomers] = useState<any[]>([])
+  const [accounts, setAccounts] = useState<any[]>([])
+  const [transactions, setTransactions] = useState<any[]>([])
   const [rib, setRib] = useState('')
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
   const [message, setMessage] = useState<string | null>(null)
 
-  const handleLoadCustomers = async () => {
+  const loadCustomers = async () => {
     setMessage(null)
     try {
-      const data = await fetchCustomers()
-      setCustomers(data)
-    } catch (error: any) {
-      setMessage(getErrorMessage(error?.response?.data))
+      setCustomers(await fetchCustomers())
+    } catch (e: any) {
+      setMessage(getErrorMessage(e?.response?.data))
     }
   }
 
-  const handleLoadAccounts = async () => {
+  const loadAccounts = async () => {
     setMessage(null)
     try {
-      const data = await fetchAccounts()
-      setAccounts(data)
-    } catch (error: any) {
-      setMessage(getErrorMessage(error?.response?.data))
+      setAccounts(await fetchAccounts())
+    } catch (e: any) {
+      setMessage(getErrorMessage(e?.response?.data))
     }
   }
 
-  const handleLoadTransactions = async (event: FormEvent) => {
-    event.preventDefault()
+  const loadTransactions = async (e: FormEvent) => {
+    e.preventDefault()
     setMessage(null)
     try {
-      const data = await fetchTransactions({ rib, dateFrom, dateTo })
-      setTransactions(data)
-    } catch (error: any) {
-      setMessage(getErrorMessage(error?.response?.data))
+      setTransactions(await fetchTransactions({ rib, dateFrom, dateTo }))
+    } catch (e: any) {
+      setMessage(getErrorMessage(e?.response?.data))
     }
   }
 
   return (
-    <section className="content">
-      <h2>Listes</h2>
+    <section className="content bordered">
+      <h2>Listes & consultations</h2>
+
       {message && <div className="alert">{message}</div>}
 
+      {/* CLIENTS */}
       <div className="section">
         <div className="section-header">
           <h3>Clients</h3>
-          <button type="button" onClick={handleLoadCustomers}>
-            Charger
-          </button>
+          <button onClick={loadCustomers}>Charger</button>
         </div>
-        {renderTable(customers)}
+        {customers.length > 0 && <CustomersTable customers={customers} />}
       </div>
 
+      {/* COMPTES */}
       <div className="section">
         <div className="section-header">
           <h3>Comptes</h3>
-          <button type="button" onClick={handleLoadAccounts}>
-            Charger
-          </button>
+          <button onClick={loadAccounts}>Charger</button>
         </div>
-        {renderTable(accounts)}
+        {accounts.length > 0 && <AccountsTable accounts={accounts} />}
       </div>
 
+      {/* TRANSACTIONS */}
       <div className="section">
-        <div className="section-header">
-          <h3>Transactions filtrees</h3>
-        </div>
-        <form className="form-grid" onSubmit={handleLoadTransactions}>
+        <h3>Transactions filtrées</h3>
+
+        <form className="form-grid" onSubmit={loadTransactions}>
           <label className="field">
             <span>RIB</span>
-            <input value={rib} onChange={(event) => setRib(event.target.value)} required />
+            <input value={rib} onChange={(e) => setRib(e.target.value)} required />
           </label>
+
           <label className="field">
-            <span>Date debut</span>
-            <input type="date" value={dateFrom} onChange={(event) => setDateFrom(event.target.value)} />
+            <span>Date début</span>
+            <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
           </label>
+
           <label className="field">
             <span>Date fin</span>
-            <input type="date" value={dateTo} onChange={(event) => setDateTo(event.target.value)} />
+            <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
           </label>
+
           <button type="submit">Filtrer</button>
         </form>
-        {renderTable(transactions)}
+
+        {transactions.length > 0 && <TransactionsTable transactions={transactions} />}
       </div>
     </section>
   )

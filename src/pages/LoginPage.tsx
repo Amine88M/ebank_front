@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-
+import '../styles/login.css'
 const getErrorMessage = (data: unknown): string => {
   if (typeof data === 'string') return data
   if (data && typeof data === 'object' && 'message' in data && typeof data.message === 'string') {
@@ -47,34 +47,53 @@ const LoginPage = () => {
   }
 
   return (
-    <div className="page">
-      <form className="panel" onSubmit={handleSubmit}>
-        <h1>Connexion</h1>
-        <label className="field">
-          <span>Username</span>
-          <input
-            type="text"
-            value={username}
-            onChange={(event) => setUsername(event.target.value)}
-            autoComplete="username"
-            required
-          />
-        </label>
-        <label className="field">
-          <span>Password</span>
-          <input
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            autoComplete="current-password"
-            required
-          />
-        </label>
-        {authError && <div className="alert">{authError}</div>}
-        <button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Connexion...' : 'Se connecter'}
-        </button>
-      </form>
+    <div className="login-page">
+
+      {/* GAUCHE : FORMULAIRE */}
+      <div className="login-left">
+        <form className="panel" onSubmit={handleSubmit}>
+          <h1>Connexion</h1>
+
+          <label className="field">
+            <span>Username</span>
+            <input
+              type="text"
+              value={username}
+              onChange={(event) => setUsername(event.target.value)}
+              autoComplete="username"
+              required
+            />
+          </label>
+
+          <label className="field">
+            <span>Password</span>
+            <input
+              type="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              autoComplete="current-password"
+              required
+            />
+          </label>
+
+          {authError && <div className="alert">{authError}</div>}
+
+          <button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Connexion...' : 'Se connecter'}
+          </button>
+        </form>
+      </div>
+
+      {/* DROITE : TEXTE */}
+      <div className="login-right">
+        <h2>IBanque</h2>
+        <p>
+          Bienvenue sur la plateforme IBanque.  
+          Gérez vos opérations bancaires en toute sécurité,
+          simplement et rapidement.
+        </p>
+      </div>
+
     </div>
   )
 }

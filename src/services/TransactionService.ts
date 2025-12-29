@@ -20,7 +20,7 @@ export const createTransaction = async (payload: CreateTransactionPayload) => {
 }
 
 export const fetchTransactions = async (filters: TransactionFilter) => {
-  const response = await apiClient.post('/rest/transaction/search', filters)
+  const response = await apiClient.post('/rest/transaction/search-optional', filters)
   return response.data
 }
 

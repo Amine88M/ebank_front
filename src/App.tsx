@@ -10,6 +10,7 @@ import CreateCustomerPage from './pages/agent/CreateCustomerPage'
 import CreateAccountPage from './pages/agent/CreateAccountPage'
 import AgentListsPage from './pages/agent/AgentListsPage'
 import AgentCardPage from './pages/agent/AgentCardPage'
+import AgentTransactionsPage from './pages/agent/AgentTransactionsPage'
 import ClientDashboardPage from './pages/client/ClientDashboardPage'
 import ClientTransactionsPage from './pages/client/ClientTransactionsPage'
 import ClientTransferPage from './pages/client/ClientTransferPage'
@@ -57,6 +58,7 @@ const App = () => {
         <Route path="create-customer" element={<CreateCustomerPage />} />
         <Route path="create-account" element={<CreateAccountPage />} />
         <Route path="lists" element={<AgentListsPage />} />
+        <Route path="transactions" element={<AgentTransactionsPage />} />
         <Route path="card" element={<AgentCardPage />} />
       </Route>
       <Route

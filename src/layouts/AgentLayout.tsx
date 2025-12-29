@@ -36,6 +36,10 @@ const AgentLayout = () => {
             Listes
           </NavLink>
 
+          <NavLink to="/agent/transactions" className="nav-link">
+            Transactions
+          </NavLink>
+
           <NavLink to="/agent/card" className="nav-link">
             Carte
           </NavLink>
